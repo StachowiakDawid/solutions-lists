@@ -146,7 +146,6 @@ Route::post('/exercise/{id}/solution/', function (Request $request, $id) {
             ['type' => $request->input('type'), 'content' => $request->input('content')]
         );
     }
-    // Później to będzie query dla admina
     $exercise = Exercise::find($id);
     if (is_null($exercise->solution_id)) {
         $exercise->solution_id = $solution->id;
