@@ -107,11 +107,24 @@ Route::get('/path/{type}/{id}', function (Request $request, $type, $id) {
 });
 
 Route::get('/exercise/{id}/solution/', function (Request $request, $id) {
-    return Solution::find(Exercise::find($id)->solution_id);
+    $solution = Solution::find(Exercise::find($id)->solution_id);
+    if (is_null($solution)) {
+        $solution = ['type' => 'none'];
+    }
+    return $solution;
 });
 
 Route::get('/solution/{id}/', function (Request $request, $id) {
-    return Solution::find(Exercise::find($id)->solution_id);
+    return Solution::find($id);
+});
+
+Route::put('/exercise/{id}/', function (Request $request, $id) {
+    $updateArray = [];
+    if ($request->name) {
+        $updateArray['name'] = $request->name;
+    }
+    $updateArray['solution_id'] = $request->solution_id;
+    return Exercise::find($id)->update($updateArray);
 });
 
 Route::get('/exercise/{id}/all-solutions/', function (Request $request, $id) {

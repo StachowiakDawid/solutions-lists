@@ -1,5 +1,5 @@
-import React, { FC, useEffect, useState } from 'react';
-import { Card, Dropdown, DropdownButton, Form, FormGroup, Button, InputGroup } from 'react-bootstrap';
+import React, { ChangeEvent, FC, useEffect, useState } from 'react';
+import { Card, Dropdown, DropdownButton, Form, FormGroup, Button, InputGroup, Spinner, FormControl } from 'react-bootstrap';
 import { MathJax } from 'better-react-mathjax';
 import axios from 'axios';
 //import { useAppSelector, useAppDispatch } from '../../app/hooks';
@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router-dom';
 interface solutionProps {
     type: string;
     content: string;
+    id: number;
     exerciseName: string;
     exerciseId: string;
 };
@@ -15,37 +16,102 @@ interface solutionProps {
 const Solution: FC<solutionProps> = (props) => {
     const navigate = useNavigate();
     const [type, setType] = useState(props.type);
+    const [selected, setSelected] = useState(props.id);
+    const [solutionId, setSolutionId] = useState(props.id);
+    const [isLoaded, setIsLoaded] = useState(true);
+    const [editMode, setEditMode] = useState(false);
+    const [inputValue, setInputValue] = useState(props.exerciseName);
     const [content, setContent] = useState(props.content);
+    const [exerciseName, setExerciseName] = useState(props.exerciseName);
     const [solutions, setSolutions] = useState<any[]>([]);
 
     useEffect(() => {
         axios.get(`/api/exercise/${props.exerciseId}/all-solutions`).then((response) => setSolutions(response.data));
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
+
+    const handleSelectChange = (e: ChangeEvent<HTMLSelectElement>) => {
+        setSelected(parseInt(e.target.value));
+        setIsLoaded(false);
+        axios.get(`/api/solution/${e.target.value}`).then((response) => {
+            setType(response.data.type);
+            setContent(response.data.content);
+            setIsLoaded(true);
+        });
+    }
+
+    const changeName = () => {
+        setEditMode(false);
+        axios.put(`/api/exercise/${props.exerciseId}`, { name: inputValue, solution_id: solutionId }).then(() => setExerciseName(inputValue));
+    }
+
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setInputValue(e.target.value);
+    }
+
+    const changeSolution = () => {
+        if (selected !== solutionId) {
+            axios.put(`/api/exercise/${props.exerciseId}`, { solution_id: selected }).then(() => {
+                axios.get(`/api/exercise/${props.exerciseId}/all-solutions`).then((response) => {
+                    setSolutionId(selected);
+                    setSolutions(response.data)
+                });
+            });
+        } else {
+            axios.put(`/api/exercise/${props.exerciseId}`, { solution_id: null }).then(() => {
+                axios.get(`/api/exercise/${props.exerciseId}/all-solutions`).then((response) => {
+                    setSolutions(response.data)
+                });
+                axios.get(`/api/exercise/${props.exerciseId}/solution`).then((response) => {
+                    setType(response.data.type);
+                    setContent(response.data.content);
+                    if(response.data.type === 'none') {
+                        setSolutionId(-1);
+                    }
+                })
+            });
+        }
+    }
 
     return <Card className="mb-2">
         <div className="card-header d-flex flex-wrap justify-content-between align-items-center">
-            {props.exerciseName} Lorem ipsum dolor sit amet
-            <DropdownButton variant="outline-secondary" id="1" title="Dodaj rozwiązanie" className="ms-auto">
-                <Dropdown.Item onClick={() => { navigate(`/upload/${props.exerciseId}`) }}>Prześlj obraz</Dropdown.Item>
-                <Dropdown.Item onClick={() => { navigate(`/canvas-editor/${props.exerciseId}`) }}>Narysuj na kanwie</Dropdown.Item>
-                <Dropdown.Item onClick={() => { navigate(`/tex-editor/${props.exerciseId}`) }}>Zapisz w TeXu</Dropdown.Item>
-                {type === 'tex' && <Dropdown.Item onClick={() => { navigate(`/tex-editor/${props.exerciseId}/edit`) }}>Edytuj istniejące</Dropdown.Item>}
-            </DropdownButton>
+            {!editMode && exerciseName}
+            {editMode && <InputGroup onClick={(e: React.MouseEvent<HTMLElement>) => e.stopPropagation()} className="mt-1 mb-1 w-50">
+                <FormControl
+                    placeholder="Nazwa zadania"
+                    defaultValue={exerciseName}
+                    onChange={handleInputChange}
+                />
+                <Button variant="outline-secondary" onClick={changeName}><i className="bi bi-check2"></i></Button>
+            </InputGroup>}
+            <div className="d-flex ms-auto mt-1 mb-1">
+                <Button variant="outline-secondary me-1" onClick={() => { setEditMode(!editMode) }}>{editMode ? 'Anuluj' : 'Zmień nazwę'}</Button>
+                <DropdownButton variant="outline-secondary" id="1" title="Dodaj rozwiązanie">
+                    <Dropdown.Item onClick={() => { navigate(`/upload/${props.exerciseId}`) }}>Prześlj obraz</Dropdown.Item>
+                    <Dropdown.Item onClick={() => { navigate(`/canvas-editor/${props.exerciseId}`) }}>Narysuj na kanwie</Dropdown.Item>
+                    <Dropdown.Item onClick={() => { navigate(`/tex-editor/${props.exerciseId}`) }}>Zapisz w TeXu</Dropdown.Item>
+                    {type === 'tex' && <Dropdown.Item onClick={() => { navigate(`/tex-editor/${props.exerciseId}/edit`) }}>Edytuj istniejące</Dropdown.Item>}
+                </DropdownButton>
+            </div>
         </div>
-        <Card.Body className={type === 'img' ? 'text-center' : ''}>
+        <Card.Body className={type === 'img' || !isLoaded ? 'text-center' : ''}>
             <FormGroup className="mb-3">
                 <InputGroup>
-                    <Form.Select>
-                        {solutions.map((solution, index) => {
-                            return <option key={index}>{solution.user_id}</option>
-                        })}
+                    <Form.Select onChange={(e) => { handleSelectChange(e) }}>
+                        {type === 'none' && <option>-</option>}
+                        {solutions.map((solution, index) => (
+                            <option key={index} value={solution.id} selected={solution.id === solutionId}>{solution.user_id}</option>
+                        ))}
                     </Form.Select>
-                    <Button>Zatwierdź</Button>
+                    <Button onClick={changeSolution}>{selected === solutionId ? 'Cofnij zatwierdzenie' : 'Zatwierdź'}</Button>
                 </InputGroup>
             </FormGroup>
-            {type === 'none' && <Card.Text>Brak rozwiązań.</Card.Text>}
-            {type === 'tex' && <Card.Text><MathJax>{content}</MathJax></Card.Text>}
-            {type === 'img' && <Card.Text><img src={`http://localhost/storage/${content}`} style={{ maxWidth: '100%' }} alt="" /></Card.Text>}
+            <div className={isLoaded ? '' : 'd-none'}>
+                {type === 'none' && <Card.Text>Brak rozwiązania.</Card.Text>}
+                {type === 'tex' && <Card.Text><MathJax>{content}</MathJax></Card.Text>}
+                {type === 'img' && <Card.Text><img src={`http://localhost/storage/${content}`} style={{ maxWidth: '100%' }} alt="" /></Card.Text>}
+            </div>
+            {!isLoaded && <Spinner animation="border" />}
         </Card.Body>
     </Card>
 }

@@ -24,12 +24,14 @@ axios.defaults.headers.common['Authorization'] = `Bearer ${localStorage.getItem(
 axios.interceptors.response.use((response) => {
   return response;
 }, (error) => {
-  if (419 === error.response.status) {
-    axios.get('/sanctum/csrf-cookie');
-  } else if (401 === error.response.status) {
-    window.location.href = '/auth';
-  } else {
-    return Promise.reject(error);
+  if (error && error.response) {
+    if (419 === error.response.status) {
+      axios.get('/sanctum/csrf-cookie');
+    } else if (401 === error.response.status) {
+      window.location.href = '/auth';
+    } else {
+      return Promise.reject(error);
+    }
   }
 });
 
