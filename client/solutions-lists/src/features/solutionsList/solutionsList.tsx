@@ -5,7 +5,6 @@ import axios from 'axios';
 import CurrentPath from '../currentPath/currentPath';
 import { useParams } from 'react-router-dom';
 import Solution from '../solution/solution';
-import { input } from '@testing-library/user-event/dist/types/utils';
 
 interface solutionsListProps { };
 

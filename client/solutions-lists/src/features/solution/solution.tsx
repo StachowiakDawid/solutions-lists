@@ -8,7 +8,7 @@ import { useNavigate } from 'react-router-dom';
 interface solutionProps {
     type: string;
     content: string;
-    id: number;
+    id?: number;
     exerciseName: string;
     exerciseId: string;
     callback: Function;
@@ -18,7 +18,7 @@ const Solution: FC<solutionProps> = (props) => {
     const navigate = useNavigate();
     const [type, setType] = useState(props.type);
     const [selected, setSelected] = useState(props.id);
-    const [solutionId, setSolutionId] = useState(props.id);
+    const [solutionId, setSolutionId] = useState(props.id ? props.id : -1);
     const [isLoaded, setIsLoaded] = useState(true);
     const [editMode, setEditMode] = useState(false);
     const [inputValue, setInputValue] = useState(props.exerciseName);
@@ -58,7 +58,7 @@ const Solution: FC<solutionProps> = (props) => {
     }
 
     const changeSolution = () => {
-        if (selected !== solutionId) {
+        if (selected !== solutionId && selected) {
             axios.put(`/api/exercise/${props.exerciseId}`, { solution_id: selected }).then(() => {
                 axios.get(`/api/exercise/${props.exerciseId}/all-solutions`).then((response) => {
                     setSolutionId(selected);
@@ -108,7 +108,7 @@ const Solution: FC<solutionProps> = (props) => {
             </div>
         </div>
         <Card.Body className={type === 'img' || !isLoaded ? 'text-center' : ''}>
-            {selected &&<FormGroup className="mb-3">
+            {<FormGroup className="mb-3">
                 <InputGroup>
                     <Form.Select onChange={(e) => { handleSelectChange(e) }}>
                         {type === 'none' && <option>-</option>}
