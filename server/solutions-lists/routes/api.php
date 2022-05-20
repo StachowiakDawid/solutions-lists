@@ -46,6 +46,10 @@ Route::delete('/list/{id}', function (Request $request, $id) {
     SolutionsList::find($id)->update(['folder_id' => 'removed']);
 });
 
+Route::delete('/exercise/{id}', function (Request $request, $id) {
+    Exercise::find($id)->update(['list_id' => 'removed']);
+});
+
 Route::put('/list/{id}', function (Request $request, $id) {
     $list = SolutionsList::find($id);
     $name = $request->name;
@@ -77,8 +81,27 @@ Route::get('/list/{id}', function (Request $request, $id) {
     return [$exercises, $solutions];
 });
 
-Route::post('/list/{id}/add-exercise', function (Request $request, $id, $type) {
-    return '';
+Route::post('/list/{id}/add-exercise', function (Request $request, $id) {
+    $name = $request->name;
+    $index = Exercise::select('index')
+            ->where('list_id', $id)
+            ->orderByDesc('index')
+            ->limit(1)->get()->first();
+    if ($index) {
+        $index = $index->index;
+    }
+    if ($name) {
+        $exercise = new Exercise;
+        $exercise->list_id = $id;
+        if ($index) {
+            $exercise->index = $index+1;
+        } else {
+            $exercise->index = 0;
+        }
+        $exercise->name = $request->name;
+        $exercise->save();
+        return $exercise;
+    }
 });
 
 Route::get('/path/{type}/{id}', function (Request $request, $type, $id) {

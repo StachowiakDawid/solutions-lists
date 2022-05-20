@@ -11,6 +11,7 @@ interface solutionProps {
     id: number;
     exerciseName: string;
     exerciseId: string;
+    callback: Function;
 };
 
 const Solution: FC<solutionProps> = (props) => {
@@ -42,7 +43,14 @@ const Solution: FC<solutionProps> = (props) => {
 
     const changeName = () => {
         setEditMode(false);
-        axios.put(`/api/exercise/${props.exerciseId}`, { name: inputValue, solution_id: solutionId }).then(() => setExerciseName(inputValue));
+        const params: any = {};
+        params.name = inputValue;
+        if (solutionId === -1) {
+            params.solution_id = null;
+        } else {
+            params.solution_id = solutionId;
+        }
+        axios.put(`/api/exercise/${props.exerciseId}`, params).then(() => setExerciseName(inputValue));
     }
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -65,12 +73,16 @@ const Solution: FC<solutionProps> = (props) => {
                 axios.get(`/api/exercise/${props.exerciseId}/solution`).then((response) => {
                     setType(response.data.type);
                     setContent(response.data.content);
-                    if(response.data.type === 'none') {
+                    if (response.data.type === 'none') {
                         setSolutionId(-1);
                     }
                 })
             });
         }
+    }
+
+    const removeExercise = () => {
+        axios.delete(`/api/exercise/${props.exerciseId}`).then(() => props.callback());
     }
 
     return <Card className="mb-2">
@@ -85,6 +97,7 @@ const Solution: FC<solutionProps> = (props) => {
                 <Button variant="outline-secondary" onClick={changeName}><i className="bi bi-check2"></i></Button>
             </InputGroup>}
             <div className="d-flex ms-auto mt-1 mb-1">
+            <Button variant="outline-secondary me-1" onClick={removeExercise}>Usuń zadanie</Button>
                 <Button variant="outline-secondary me-1" onClick={() => { setEditMode(!editMode) }}>{editMode ? 'Anuluj' : 'Zmień nazwę'}</Button>
                 <DropdownButton variant="outline-secondary" id="1" title="Dodaj rozwiązanie">
                     <Dropdown.Item onClick={() => { navigate(`/upload/${props.exerciseId}`) }}>Prześlj obraz</Dropdown.Item>
@@ -95,7 +108,7 @@ const Solution: FC<solutionProps> = (props) => {
             </div>
         </div>
         <Card.Body className={type === 'img' || !isLoaded ? 'text-center' : ''}>
-            <FormGroup className="mb-3">
+            {selected &&<FormGroup className="mb-3">
                 <InputGroup>
                     <Form.Select onChange={(e) => { handleSelectChange(e) }}>
                         {type === 'none' && <option>-</option>}
@@ -103,11 +116,11 @@ const Solution: FC<solutionProps> = (props) => {
                             <option key={index} value={solution.id} selected={solution.id === solutionId}>{solution.user_id}</option>
                         ))}
                     </Form.Select>
-                    <Button onClick={changeSolution}>{selected === solutionId ? 'Cofnij zatwierdzenie' : 'Zatwierdź'}</Button>
+                     <Button onClick={changeSolution}>{selected === solutionId ? 'Cofnij zatwierdzenie' : 'Zatwierdź'}</Button>
                 </InputGroup>
-            </FormGroup>
+            </FormGroup>}
             <div className={isLoaded ? '' : 'd-none'}>
-                {type === 'none' && <Card.Text>Brak rozwiązania.</Card.Text>}
+                {type === 'none' && <Card.Text>{!selected ? 'Brak rozwiązań' : 'Brak zatwierdzonego rozwiązania.'}</Card.Text>}
                 {type === 'tex' && <Card.Text><MathJax>{content}</MathJax></Card.Text>}
                 {type === 'img' && <Card.Text><img src={`http://localhost/storage/${content}`} style={{ maxWidth: '100%' }} alt="" /></Card.Text>}
             </div>
