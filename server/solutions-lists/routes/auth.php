@@ -22,14 +22,15 @@ Route::get('/auth/callback', function () {
     }
     $userCreated = User::firstOrCreate(
         [
-            'name' => $user->getEmail(),
+            'email' => $user->getEmail(),
             'role' => 'user',
         ],
     );
     $token = $userCreated->createToken('myapptoken')->plainTextToken;
     $response = [
         'user' => $user->email,
-        'token' => $token
+        'role' => $userCreated->role,
+        'token' => $token,
     ];
     return response ($response, 201);
 });

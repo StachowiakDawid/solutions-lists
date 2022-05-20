@@ -1,5 +1,5 @@
 import React, { FC, useState, useEffect, useRef } from 'react';
-import { Container, Spinner, Card, InputGroup, FormControl, Button } from 'react-bootstrap';
+import { Container, Spinner, Card, InputGroup, FormControl, Button, Form } from 'react-bootstrap';
 import axios from 'axios';
 //import { useAppSelector, useAppDispatch } from '../../app/hooks';
 import CurrentPath from '../currentPath/currentPath';
@@ -14,7 +14,7 @@ const SolutionsList: FC<solutionsListProps> = () => {
     const [solutions, setSolutions] = useState<any[]>([]);
     const [loaded, isLoaded] = useState(false);
     const inputRef = useRef<HTMLInputElement>(null);
-
+    const textareaRef = useRef<HTMLTextAreaElement>(null);
 
     useEffect(() => {
         load();
@@ -36,6 +36,12 @@ const SolutionsList: FC<solutionsListProps> = () => {
         inputRef.current!.value = '';
     };
 
+    const addMultipleExercises = () => {
+        isLoaded(false);
+        axios.post(`/api/list/${listId}/add-exercises`, {names: textareaRef.current?.value.split('\n')}).then(() => load());
+        textareaRef.current!.value = '';
+    };
+
     return <Container>
         <div className="mt-2"><CurrentPath pathTo={listId} type='list' /></div>
         {!loaded && <Spinner animation="border" />}
@@ -43,10 +49,10 @@ const SolutionsList: FC<solutionsListProps> = () => {
             return <Solution key={index} content={solutions[index].content} type={solutions[index].type}
                 exerciseName={exercise.name} exerciseId={exercise.id} id={solutions[index].id} callback={load}/>
         })}
-        <Card className="mb-2">
+        { localStorage.getItem('userRole') === 'admin' && <Card className="mb-2">
             <Card.Header>Dodaj zadanie</Card.Header>
             <Card.Body>
-                <InputGroup className="mb-3">
+                <InputGroup className="mb-3 d-none">
                     <FormControl ref={inputRef}
                         placeholder="Nazwa zadania"
                     />
@@ -54,8 +60,12 @@ const SolutionsList: FC<solutionsListProps> = () => {
                         Dodaj
                     </Button>
                 </InputGroup>
+                <Form.Control as="textarea" rows={3} ref={textareaRef} placeholder="Wpisz kolejne nazwy zadań oddzielone enterami"/>
+                <Button variant="success" onClick={addMultipleExercises} className="mt-2">
+                        Dodaj wiele
+                </Button>
             </Card.Body>
-        </Card>
+        </Card>}
     </Container>
 }
 

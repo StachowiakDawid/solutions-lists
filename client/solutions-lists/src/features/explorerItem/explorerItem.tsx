@@ -100,12 +100,13 @@ const ExplorerItem: FC<explorerItemProps> = (props) => {
 
     return (
         <div className="text-center me-2 mb-2 border rounded position-relative" style={{ width: '150px' }} onClick={handleItemClick}>
-            <div className="d-flex justify-content-end">
+            {localStorage.getItem('userRole') === 'admin' && <div className="d-flex justify-content-end">
                 <i className={`bi bi-three-dots-vertical ${props.type === 'folder' || props.type === 'list' ? '' : 'd-none'}`}
                     onClick={(e: React.MouseEvent<HTMLElement>) => { toggleMenu(); e.stopPropagation(); }}>
                 </i>
-            </div>
-            <div style={{ height: '24px' }} className={`${props.type === 'add-folder' || props.type === 'add-list' ? '' : 'd-none'}`}></div>
+            </div>}
+            {localStorage.getItem('userRole') === 'admin' && 
+            <div style={{ height: '24px' }} className={`${props.type === 'add-folder' || props.type === 'add-list' ? '' : 'd-none'}`}></div>}
             <ListGroup className={`position-absolute w-100 ${showMenu ? '' : 'd-none'}`}
                 ref={menuRef} onClick={(e: React.MouseEvent<HTMLElement>) => e.stopPropagation()}>
                 <ListGroup.Item className="d-flex justify-content-between" action onClick={startEditMode}>Zmień nazwę <i className="bi bi-pencil"></i></ListGroup.Item>

@@ -15,6 +15,7 @@ const Login: FC<loginProps> = (props) => {
         if (props.callback) {
             axios.get(`/api/auth/callback${window.location.search}`).then((response) => {
                 localStorage.setItem('accessToken', response.data.token);
+                localStorage.setItem('userRole', response.data.role);
                 axios.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`;
                 navigate('/');
             });

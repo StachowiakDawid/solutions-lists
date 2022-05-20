@@ -23,10 +23,12 @@ axios.defaults.headers.common['Authorization'] = `Bearer ${localStorage.getItem(
 
 axios.interceptors.response.use((response) => {
   return response;
-}, (error) => {
+}, async (error) => {
   if (error && error.response) {
     if (419 === error.response.status) {
-      axios.get('/sanctum/csrf-cookie');
+      error.config._retry = true;
+      await axios.get('/sanctum/csrf-cookie');
+      return axios(error.config);
     } else if (401 === error.response.status) {
       window.location.href = '/auth';
     } else {

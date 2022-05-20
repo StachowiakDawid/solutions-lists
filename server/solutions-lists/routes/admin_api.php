@@ -86,6 +86,32 @@ Route::post('/list/{id}/add-exercise', function (Request $request, $id) {
     }
 });
 
+Route::post('/list/{id}/add-exercises', function (Request $request, $id) {
+    $names = $request->names;
+    $index = Exercise::select('index')
+            ->where('list_id', $id)
+            ->orderByDesc('index')
+            ->limit(1)->get()->first();
+    if ($index) {
+        $index = $index->index;
+    }
+    if ($names) {
+        foreach ($names as $name) {
+            $exercise = new Exercise;
+            $exercise->list_id = $id;
+            if (!is_null($index)) {
+                $index++;
+                $exercise->index = $index;
+            } else {
+                $index = 0;
+                $exercise->index = 0;
+            }
+            $exercise->name = $name;
+            $exercise->save();
+        }
+    }
+});
+
 Route::put('/exercise/{id}/', function (Request $request, $id) {
     $updateArray = [];
     if ($request->name) {
