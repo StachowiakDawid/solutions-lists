@@ -83,6 +83,7 @@ Route::post('/exercise/{id}/solution/', function (Request $request, $id) {
                 ['user_id' => $request->user()->id, 'exercise_id' => $id],
                 ['type' => 'img', 'content' => $request->File->hashName()]
             );
+            return response('', 200);
         }
     } elseif ($request->input('type') == 'canvas' && $request->validate([
         'content' => [
@@ -97,11 +98,13 @@ Route::post('/exercise/{id}/solution/', function (Request $request, $id) {
         $path = md5($image).'.jpg';
         Storage::disk('public')->put($path, $image);
         $solution = Solution::updateOrCreate(['user_id' => $request->user()->id, 'exercise_id' => $id], ['type' => 'img', 'content' => $path]);
+        return response('', 200);
     } elseif ($request->input('type') == 'tex') {
         $solution = Solution::updateOrCreate(
             ['user_id' => $request->user()->id, 'exercise_id' => $id],
             ['type' => $request->input('type'), 'content' => $request->input('content')]
         );
+        return response('', 200);
     }
-    return $solution;
+    return response('', 400);
 });
