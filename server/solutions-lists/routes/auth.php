@@ -11,7 +11,7 @@ Route::get('/auth/redirect', function () {
 
 Route::middleware('auth:sanctum')->get('/auth/logout', function (Request $request) {
     $request->user()->tokens()->delete();
-    return response('wylogowano',201);
+    return response('wylogowano', 201);
 });
 
 Route::get('/auth/callback', function () {
@@ -20,17 +20,23 @@ Route::get('/auth/callback', function () {
     } catch (ClientException $exception) {
         return response()->json(['error' => 'Invalid credentials provided.'], 422);
     }
-    $userCreated = User::firstOrCreate(
-        [
+    if (explode("@", $user->getEmail())[1] === 'student.pwr.edu.pl') {
+        $userCreated = User::firstOrCreate(
+            [
             'email' => $user->getEmail(),
-            'role' => 'user',
         ],
-    );
-    $token = $userCreated->createToken('myapptoken')->plainTextToken;
-    $response = [
+            [
+            'role' => 'user',
+        ]
+        );
+        $token = $userCreated->createToken('myapptoken')->plainTextToken;
+        $response = [
         'user' => $user->email,
         'role' => $userCreated->role,
         'token' => $token,
     ];
-    return response ($response, 201);
+        return response($response, 201);
+    } else {
+        return response('Use student mail', 403);
+    }
 });
