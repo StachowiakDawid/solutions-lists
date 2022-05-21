@@ -5,6 +5,7 @@ import axios from 'axios';
 import CurrentPath from '../currentPath/currentPath';
 import { useParams } from 'react-router-dom';
 import Solution from '../solution/solution';
+import {v4 as uuid } from 'uuid';
 
 interface solutionsListProps { };
 
@@ -48,7 +49,7 @@ const SolutionsList: FC<solutionsListProps> = () => {
         <div className="mt-2"><CurrentPath pathTo={listId} type='list' /></div>
         {!loaded && <Spinner animation="border" />}
         {exercises.map((exercise, index) => {
-            return <Solution key={solutions[index].id} content={solutions[index].content} type={solutions[index].type}
+            return <Solution key={uuid()} content={solutions[index].content} type={solutions[index].type}
                 exerciseName={exercise.name} exerciseId={exercise.id} id={solutions[index].id} callback={load}/>
         })}
         { localStorage.getItem('userRole') === 'admin' && <Card className="mb-2">
