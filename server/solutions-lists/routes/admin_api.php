@@ -92,20 +92,17 @@ Route::post('/list/{id}/add-exercises', function (Request $request, $id) {
             ->where('list_id', $id)
             ->orderByDesc('index')
             ->limit(1)->get()->first();
-    if ($index) {
+    if (!is_null($index)) {
         $index = $index->index;
+    } else {
+        $index = 0;
     }
     if ($names) {
         foreach ($names as $name) {
             $exercise = new Exercise;
             $exercise->list_id = $id;
-            if (!is_null($index)) {
-                $index++;
-                $exercise->index = $index;
-            } else {
-                $index = 0;
-                $exercise->index = 0;
-            }
+            $exercise->index = $index;
+            $index++;
             $exercise->name = $name;
             $exercise->save();
         }
