@@ -27,7 +27,9 @@ const Solution: FC<solutionProps> = (props) => {
     const [solutions, setSolutions] = useState<any[]>([]);
 
     useEffect(() => {
-        axios.get(`/api/exercise/${props.exerciseId}/all-solutions`).then((response) => setSolutions(response.data));
+        if (localStorage.getItem('userRole') === 'admin') {
+            axios.get(`/api/exercise/${props.exerciseId}/all-solutions`).then((response) => setSolutions(response.data));
+        }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 

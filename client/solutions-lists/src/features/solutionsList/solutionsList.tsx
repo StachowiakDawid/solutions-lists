@@ -48,7 +48,7 @@ const SolutionsList: FC<solutionsListProps> = () => {
         <div className="mt-2"><CurrentPath pathTo={listId} type='list' /></div>
         {!loaded && <Spinner animation="border" />}
         {exercises.map((exercise, index) => {
-            return <Solution key={index} content={solutions[index].content} type={solutions[index].type}
+            return <Solution key={solutions[index].id} content={solutions[index].content} type={solutions[index].type}
                 exerciseName={exercise.name} exerciseId={exercise.id} id={solutions[index].id} callback={load}/>
         })}
         { localStorage.getItem('userRole') === 'admin' && <Card className="mb-2">
