@@ -70,7 +70,7 @@ Route::get('/exercise/{id}/all-solutions/', function (Request $request, $id) {
 Route::post('/exercise/{id}/solution/', function (Request $request, $id) {
     if ($request->input('type') == 'img' && $request->validate([
         'File' => [
-            'file|max:10000|mimes:jpg,bmp,png'
+            ['file','max:10000','mimes:jpg,bmp,png']
         ]
     ])) {
         if ($request->file('File')->isValid()) {
