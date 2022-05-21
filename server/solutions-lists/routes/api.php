@@ -68,7 +68,11 @@ Route::get('/exercise/{id}/all-solutions/', function (Request $request, $id) {
 });
 
 Route::post('/exercise/{id}/solution/', function (Request $request, $id) {
-    if ($request->input('type') == 'img') {
+    if ($request->input('type') == 'img' && $request->validate([
+        'file' => [
+            'file|max:10000|mimes:jpg,bmp,png'
+        ]
+    ])) {
         if ($request->file('File')->isValid()) {
             $existingSolution = Solution::where(['user_id' => $request->user()->id, 'exercise_id' => $id, 'type' => 'img'])->first();
             if ($existingSolution) {
@@ -80,7 +84,11 @@ Route::post('/exercise/{id}/solution/', function (Request $request, $id) {
                 ['type' => 'img', 'content' => $request->File->hashName()]
             );
         }
-    } elseif ($request->input('type') == 'canvas') {
+    } elseif ($request->input('type') == 'canvas' && $request->validate([
+        'content' => [
+            'max:70000000'
+        ]
+    ])) {
         $existingSolution = Solution::where(['user_id' => $request->user()->id, 'exercise_id' => $id, 'type' => 'img'])->first();
         if ($existingSolution) {
             Storage::disk('public')->delete($existingSolution->content);
