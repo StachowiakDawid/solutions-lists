@@ -21,6 +21,8 @@ const SolutionsList: FC<solutionsListProps> = () => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [listId]);
 
+    useEffect(() => {}, [isLoaded]);
+
     const load = () => {
         isLoaded(false);
         axios.get(`/api/list/${listId}`).then((response) => {
