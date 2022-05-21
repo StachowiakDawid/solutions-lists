@@ -125,7 +125,7 @@ const Solution: FC<solutionProps> = (props) => {
             <div className={isLoaded ? '' : 'd-none'}>
                 {type === 'none' && <Card.Text>{!solutions[0] ? 'Brak rozwiązań' : 'Brak zatwierdzonego rozwiązania.'}</Card.Text>}
                 {type === 'tex' && <Card.Text><MathJax>{content}</MathJax></Card.Text>}
-                {type === 'img' && <Card.Text><img src={`http://localhost/storage/${content}`} style={{ maxWidth: '100%' }} alt="" /></Card.Text>}
+                {type === 'img' && <Card.Text><img src={`https://rozwiazania.dawidstachowiak.pl/storage/${content}`} style={{ maxWidth: '100%' }} alt="" /></Card.Text>}
             </div>
             {!isLoaded && <Spinner animation="border" />}
         </Card.Body>
