@@ -13,6 +13,7 @@ const container = document.getElementById('root')!;
 const root = createRoot(container);
 
 const mathJaxConfig = {
+  src: 'https://rozwiazania.dawidstachowiak.pl/static/js/tex-mml-chtml.js',
   tex: {
     digits: /^(?:[0-9]+(?:,[0-9]*)?|, [0-9]+)/
   }
