@@ -2,6 +2,7 @@ import React, { ChangeEvent, FC, useEffect, useState } from 'react';
 import { Card, Dropdown, DropdownButton, Form, FormGroup, Button, InputGroup, Spinner, FormControl } from 'react-bootstrap';
 import { MathJax } from 'better-react-mathjax';
 import axios from 'axios';
+import {v4 as uuid } from 'uuid';
 //import { useAppSelector, useAppDispatch } from '../../app/hooks';
 import { useNavigate } from 'react-router-dom';
 
@@ -118,7 +119,7 @@ const Solution: FC<solutionProps> = (props) => {
                     <Form.Select onChange={(e) => { handleSelectChange(e) }}>
                         {type === 'none' && <option>-</option>}
                         {solutions.map((solution, index) => (
-                            <option key={index} value={solution.id} selected={solution.id === solutionId}>{solution.user_id}</option>
+                            <option key={uuid()} value={solution.id} selected={solution.id === solutionId}>{solution.user_id}</option>
                         ))}
                     </Form.Select>
                     <Button onClick={changeSolution}>{selected === solutionId ? 'Cofnij zatwierdzenie' : 'Zatwierdź'}</Button>

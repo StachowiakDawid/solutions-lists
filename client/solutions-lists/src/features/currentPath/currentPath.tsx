@@ -2,6 +2,7 @@ import axios from 'axios';
 import React, { FC, useEffect, useState } from 'react';
 import { Breadcrumb } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
+import {v4 as uuid } from 'uuid';
 //import { useAppSelector, useAppDispatch } from '../../app/hooks';
 
 interface currentPathProps {
@@ -23,7 +24,7 @@ const CurrentPath: FC<currentPathProps> = (props) => {
     }, [props.pathTo]);
     return <Breadcrumb className={`${isLoaded ? '' : 'invisible'}`} style={{minHeight: '24px'}}>
         {folders.map((folder, index) => (
-            <Breadcrumb.Item active={index === folders.length - 1} key={index} onClick={() => navigate(`/folder/${folder.id}`)}>
+            <Breadcrumb.Item active={index === folders.length - 1} key={uuid()} onClick={() => navigate(`/folder/${folder.id}`)}>
                 {folder.name === 'root' ? 'Strona główna' : folder.name}
             </Breadcrumb.Item>
         ))}

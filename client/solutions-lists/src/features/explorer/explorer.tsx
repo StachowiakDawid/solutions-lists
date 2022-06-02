@@ -1,5 +1,6 @@
 import React, { FC } from 'react';
 import ExplorerItem from '../explorerItem/explorerItem'
+import {v4 as uuid } from 'uuid';
 //import { useAppSelector, useAppDispatch } from '../../app/hooks';
 
 interface explorerProps {
@@ -15,10 +16,10 @@ const Explorer: FC<explorerProps> = (props) => {
             <div className="mb-3">{(props.folders.length === 0 && props.lists.length === 0) && 'Ten folder jest pusty.'}</div>
             <div className="d-flex flex-wrap">
                 {props.folders.map((folder, index) => (
-                    <ExplorerItem key={index} type="folder" name={folder[0]} id={folder[1]} callback={props.callback} folderId={props.folderId} />
+                    <ExplorerItem key={uuid()} type="folder" name={folder[0]} id={folder[1]} callback={props.callback} folderId={props.folderId} />
                 ))}
                 {props.lists.map((list, index) => (
-                    <ExplorerItem key={index} type="list" name={list[0]} id={list[1]} callback={props.callback} folderId={props.folderId} />
+                    <ExplorerItem key={uuid()} type="list" name={list[0]} id={list[1]} callback={props.callback} folderId={props.folderId} />
                 ))}
                 {localStorage.getItem('userRole') === 'admin' && <><ExplorerItem type="add-folder" name="Nowy folder" callback={props.callback} folderId={props.folderId}/>
                 <ExplorerItem type="add-list" name="Nowa lista" callback={props.callback} folderId={props.folderId}/></>}
